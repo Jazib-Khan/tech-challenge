@@ -18,13 +18,15 @@ const props = defineProps<{
     name?: string;
     items: Array;
     search?: string;
+    typeFilter?: string;
 }>();
 
 const searchQuery = ref(props.search || '');
+const selectedType = ref(props.typeFilter || ''); // Default empty means no filter
 
-// Watch for changes in searchQuery and make a request
-watch(searchQuery, (newQuery) => {
-    router.get('/dashboard', { search: newQuery }, { preserveState: true, replace: true });
+// Watch for changes in searchQuery or selectedType and make a request
+watch([searchQuery, selectedType], ([newQuery, newType]) => {
+    router.get('/dashboard', { search: newQuery, typeFilter: newType }, { preserveState: true, replace: true });
 });
 
 // Delete item function
@@ -45,15 +47,27 @@ const deleteItem = (itemId: number) => {
     <AppLayout :breadcrumbs="[{ title: 'Dashboard', href: '/dashboard' }]">
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
             <div class="p-6 bg-white rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+                <!-- Search Input -->
                 <input
                     v-model="searchQuery"
                     type="text"
                     placeholder="Search items..."
                     class="mt-2 w-full p-2 border rounded-md text-gray-500"
                 />
+
+                <!-- Type Filter Dropdown -->
+                <select
+                    v-model="selectedType"
+                    class="mt-2 w-full p-2 border rounded-md text-gray-500"
+                >
+                    <option value="">All Types</option>
+                    <option value="info">Info</option>
+                    <option value="WEBLINK">Web Link</option>
+                    <option value="download">Download</option>
+                </select>
             </div>
 
-            <!-- Change text color to improve readability-->
+            <!-- Items List -->
             <div class="p-6 bg-white rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                 <h3 class="text-2xl text-gray-500">Latest Items</h3>
                 <div v-if="items.length" class="grid gap-4 grid-cols-6 mt-4">
