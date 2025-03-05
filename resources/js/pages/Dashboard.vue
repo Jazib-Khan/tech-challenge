@@ -26,6 +26,18 @@ const searchQuery = ref(props.search || '');
 watch(searchQuery, (newQuery) => {
     router.get('/dashboard', { search: newQuery }, { preserveState: true, replace: true });
 });
+
+// Delete item function
+const deleteItem = (itemId: number) => {
+    if (confirm('Are you sure you want to delete this item?')) {
+        router.delete(`/items/${itemId}`, {
+            preserveState: true,
+            onSuccess: () => {
+                console.log('Item deleted');
+            },
+        });
+    }
+};
 </script>
 
 <template>
@@ -41,10 +53,11 @@ watch(searchQuery, (newQuery) => {
                 />
             </div>
 
+            <!-- Change text color to improve readability-->
             <div class="p-6 bg-white rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                 <h3 class="text-2xl text-gray-500">Latest Items</h3>
                 <div v-if="items.length" class="grid gap-4 grid-cols-6 mt-4">
-                    <Card v-for="item in items" :key="item.id" :item="item" />
+                    <Card v-for="item in items" :key="item.id" :item="item" @delete="deleteItem(item.id)" />
                 </div>
                 <p v-else class="text-gray-500 mt-4">No items found.</p>
             </div>
