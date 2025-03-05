@@ -30,4 +30,12 @@ class DashboardController extends Controller
             'search' => $search
         ]);
     }
+
+    // Deletes item by id
+    public function destroy(Item $item)
+    {
+        $item->delete();
+
+        return redirect()->back()->with('success', 'Item deleted successfully.');
+    }
 }
