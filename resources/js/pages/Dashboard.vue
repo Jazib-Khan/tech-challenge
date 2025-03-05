@@ -16,7 +16,14 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 const props = defineProps<{
     name?: string;
-    items: Array;
+    items: Array<{
+        id: number;
+        name: string;
+        description: string;
+        content_type: string;
+        type_icon: string;
+        image_url: string;
+    }>;
     search?: string;
     typeFilter?: string;
 }>();
@@ -51,10 +58,9 @@ const deleteItem = (itemId: number) => {
                 <input
                     v-model="searchQuery"
                     type="text"
-                    placeholder="Search items..."
+                    placeholder="Search items by name, description, or type..."
                     class="mt-2 w-full p-2 border rounded-md text-gray-500"
                 />
-
                 <!-- Type Filter Dropdown -->
                 <select
                     v-model="selectedType"
@@ -70,10 +76,33 @@ const deleteItem = (itemId: number) => {
             <!-- Items List -->
             <div class="p-6 bg-white rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                 <h3 class="text-2xl text-gray-500">Latest Items</h3>
-                <div v-if="items.length" class="grid gap-4 grid-cols-6 mt-4">
-                    <Card v-for="item in items" :key="item.id" :item="item" @delete="deleteItem(item.id)" />
+
+                <!-- Search Results Summary -->
+                <div v-if="searchQuery || selectedType" class="mb-4 text-gray-600">
+                    <p>
+                        Showing
+                        {{ items.length }} result(s)
+                        {{ searchQuery ? `for "${searchQuery}"` : '' }}
+                        {{ selectedType ? `of type "${selectedType}"` : '' }}
+                    </p>
                 </div>
-                <p v-else class="text-gray-500 mt-4">No items found.</p>
+
+                <!-- Items Grid -->
+                <div v-if="items.length" class="grid gap-4 grid-cols-6 mt-4">
+                    <Card
+                        v-for="item in items"
+                        :key="item.id"
+                        :item="item"
+                        @delete="deleteItem(item.id)"
+                    />
+                </div>
+
+                <!-- No Results Message -->
+                <p v-else class="text-gray-500 mt-4">
+                    No items found
+                    {{ searchQuery ? `matching "${searchQuery}"` : '' }}
+                    {{ selectedType ? `of type "${selectedType}"` : '' }}
+                </p>
             </div>
         </div>
     </AppLayout>
