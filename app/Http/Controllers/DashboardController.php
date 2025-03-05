@@ -13,13 +13,17 @@ class DashboardController extends Controller
     {
         // Get search query from request
         $search = $request->input('search');
+        $typeFilter = $request->input('typeFilter'); // Get the type filter from request
 
-        // Fetch items, applying search filter if query exists
+        // Fetch items, applying search and type filter
         $items = Item::query()
             ->when($search, function ($query, $search) {
                 $query->where('name', 'LIKE', "%{$search}%")
                       ->orWhere('description', 'LIKE', "%{$search}%")
                       ->orWhere('content_type', 'LIKE', "%{$search}%");
+            })
+            ->when($typeFilter, function ($query, $typeFilter) {
+                $query->where('content_type', $typeFilter);
             })
             ->oldest()
             ->limit(10)
@@ -27,7 +31,8 @@ class DashboardController extends Controller
 
         return Inertia::render('Dashboard', [
             'items' => $items,
-            'search' => $search
+            'search' => $search,
+            'typeFilter' => $typeFilter
         ]);
     }
 
